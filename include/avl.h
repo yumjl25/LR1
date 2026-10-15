@@ -21,11 +21,12 @@ int avlLen(AVLTree* tree);
 
 void avlInsert(AVLTree* tree, int value);
 bool avlSearch(AVLTree* tree, int value);
-bool avlDel(AVLTree* tree, int value);
+bool avlDel(AVLTree* tree, int value, int& out);
 
 void avlPrintInorder(AVLTree* tree);
 void avlPrintPreorder(AVLTree* tree);
 void avlPrintPostorder(AVLTree* tree);
+void avlPrintBFS(AVLTree* tree);
 void avlPrint(AVLTree* tree);
 int avlToArray(AVLTree* tree, int* buf);
 

@@ -1,5 +1,5 @@
 pub struct SNode {
-    pub data: i32,
+    pub data: String,
     pub next: Option<Box<SNode>>,
 }
 
@@ -16,15 +16,12 @@ impl Stack {
         self.head.is_none()
     }
 
-    pub fn push(&mut self, value: i32) {
-        let node = SNode {
-            data: value,
-            next: self.head.take(),
-        };
+    pub fn push(&mut self, value: String) {
+        let node = SNode { data: value, next: self.head.take() };
         self.head = Some(Box::new(node));
     }
 
-    pub fn pop(&mut self) -> Option<i32> {
+    pub fn pop(&mut self) -> Option<String> {
         match self.head.take() {
             None => None,
             Some(node) => {
@@ -34,10 +31,10 @@ impl Stack {
         }
     }
 
-    pub fn get(&self) -> Option<i32> {
+    pub fn get(&self) -> Option<String> {
         match &self.head {
             None => None,
-            Some(node) => Some(node.data),
+            Some(node) => Some(node.data.clone()),
         }
     }
 

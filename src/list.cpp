@@ -25,8 +25,7 @@ bool listIsEmpty(List* list) {
     return list->head == nullptr;
 }
 
-
-void listPushHead(List* list, int value) {
+void listPushHead(List* list, const std::string& value) {
     LNode* node = new LNode{value, nullptr, list->head};
     if (list->head != nullptr) {
         list->head->prev = node;
@@ -37,7 +36,7 @@ void listPushHead(List* list, int value) {
     list->size++;
 }
 
-void listPushTail(List* list, int value) {
+void listPushTail(List* list, const std::string& value) {
     LNode* node = new LNode{value, list->tail, nullptr};
     if (list->tail != nullptr) {
         list->tail->next = node;
@@ -48,7 +47,7 @@ void listPushTail(List* list, int value) {
     list->size++;
 }
 
-void listPushBefore(List* list, int target, int value) {
+void listPushBefore(List* list, const std::string& target, const std::string& value) {
     LNode* cur = list->head;
     while (cur != nullptr && cur->data != target) {
         cur = cur->next;
@@ -67,7 +66,7 @@ void listPushBefore(List* list, int target, int value) {
     list->size++;
 }
 
-void listPushAfter(List* list, int target, int value) {
+void listPushAfter(List* list, const std::string& target, const std::string& value) {
     LNode* cur = list->head;
     while (cur != nullptr && cur->data != target) {
         cur = cur->next;
@@ -76,7 +75,6 @@ void listPushAfter(List* list, int target, int value) {
         cout << "Target not found" << endl;
         return;
     }
-    // если target — хвост, вставляем в хвост
     if (cur == list->tail) {
         listPushTail(list, value);
         return;
@@ -87,14 +85,13 @@ void listPushAfter(List* list, int target, int value) {
     list->size++;
 }
 
-
-int listDelHead(List* list) {
+bool listDelHead(List* list, std::string& out) {
     if (listIsEmpty(list)) {
         cout << "List is empty" << endl;
-        return -1;
+        return false;
     }
     LNode* old = list->head;
-    int value = old->data;
+    out = old->data;
     list->head = old->next;
     if (list->head != nullptr) {
         list->head->prev = nullptr;
@@ -103,16 +100,16 @@ int listDelHead(List* list) {
     }
     delete old;
     list->size--;
-    return value;
+    return true;
 }
 
-int listDelTail(List* list) {
+bool listDelTail(List* list, std::string& out) {
     if (listIsEmpty(list)) {
         cout << "List is empty" << endl;
-        return -1;
+        return false;
     }
     LNode* old = list->tail;
-    int value = old->data;
+    out = old->data;
     list->tail = old->prev;
     if (list->tail != nullptr) {
         list->tail->next = nullptr;
@@ -121,20 +118,20 @@ int listDelTail(List* list) {
     }
     delete old;
     list->size--;
-    return value;
+    return true;
 }
 
-int listDelBefore(List* list, int target) {
+bool listDelBefore(List* list, const std::string& target, std::string& out) {
     LNode* cur = list->head;
     while (cur != nullptr && cur->data != target) {
         cur = cur->next;
     }
     if (cur == nullptr || cur->prev == nullptr) {
         cout << "Nothing to delete before" << endl;
-        return -1;
+        return false;
     }
     LNode* victim = cur->prev;
-    int value = victim->data;
+    out = victim->data;
     cur->prev = victim->prev;
     if (victim->prev != nullptr) {
         victim->prev->next = cur;
@@ -143,20 +140,20 @@ int listDelBefore(List* list, int target) {
     }
     delete victim;
     list->size--;
-    return value;
+    return true;
 }
 
-int listDelAfter(List* list, int target) {
+bool listDelAfter(List* list, const std::string& target, std::string& out) {
     LNode* cur = list->head;
     while (cur != nullptr && cur->data != target) {
         cur = cur->next;
     }
     if (cur == nullptr || cur->next == nullptr) {
         cout << "Nothing to delete after" << endl;
-        return -1;
+        return false;
     }
     LNode* victim = cur->next;
-    int value = victim->data;
+    out = victim->data;
     cur->next = victim->next;
     if (victim->next != nullptr) {
         victim->next->prev = cur;
@@ -165,11 +162,10 @@ int listDelAfter(List* list, int target) {
     }
     delete victim;
     list->size--;
-    return value;
+    return true;
 }
 
-
-bool listDelValue(List* list, int value) {
+bool listDelValue(List* list, const std::string& value) {
     LNode* cur = list->head;
     while (cur != nullptr && cur->data != value) {
         cur = cur->next;
@@ -191,7 +187,7 @@ bool listDelValue(List* list, int value) {
     return true;
 }
 
-bool listSearch(List* list, int value) {
+bool listSearch(List* list, const std::string& value) {
     LNode* cur = list->head;
     while (cur != nullptr) {
         if (cur->data == value) return true;
@@ -200,33 +196,35 @@ bool listSearch(List* list, int value) {
     return false;
 }
 
-
-int listGetHead(List* list) {
+bool listGetHead(List* list, std::string& out) {
     if (listIsEmpty(list)) {
         cout << "List is empty" << endl;
-        return -1;
+        return false;
     }
-    return list->head->data;
+    out = list->head->data;
+    return true;
 }
 
-int listGetTail(List* list) {
+bool listGetTail(List* list, std::string& out) {
     if (listIsEmpty(list)) {
         cout << "List is empty" << endl;
-        return -1;
+        return false;
     }
-    return list->tail->data;
+    out = list->tail->data;
+    return true;
 }
 
-int listGetAt(List* list, int index) {
+bool listGetAt(List* list, int index, std::string& out) {
     if (index < 0 || index >= list->size) {
         cout << "Index out of range" << endl;
-        return -1;
+        return false;
     }
     LNode* cur = list->head;
     for (int i = 0; i < index; i++) {
         cur = cur->next;
     }
-    return cur->data;
+    out = cur->data;
+    return true;
 }
 
 void listPrint(List* list) {

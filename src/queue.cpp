@@ -23,7 +23,7 @@ bool queueIsEmpty(Queue* q){
     return q->head == nullptr;
 }
 
-void queuePush(Queue* q, int value){
+void queuePush(Queue* q, const std::string& value){
     QNode* new_node = new QNode{value, nullptr};
     if (queueIsEmpty(q)){
         q->head = new_node;
@@ -34,27 +34,28 @@ void queuePush(Queue* q, int value){
     }
 }
 
-int queuePop(Queue* q){
+bool queuePop(Queue* q, std::string& out){
     if(queueIsEmpty(q)){
         cout << "Queue is empty" << endl;
-        return -1;
+        return false;
     }
     QNode* del_node = q->head;
-    int value = del_node->data;
+    out = del_node->data;
     q->head = del_node->next;
     if(q->head == nullptr){
         q->tail = nullptr;
     }
     delete del_node;
-    return value;
+    return true;
 }
 
-int queueGet(Queue* q){
+bool queueGet(Queue* q, std::string& out){
     if (queueIsEmpty(q)){
         cout << "Queue is empty" << endl;
-        return -1;
+        return false;
     }
-    return q->head->data;
+    out = q->head->data;
+    return true;
 }
 
 void queuePrint(Queue* q){

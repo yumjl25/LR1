@@ -4,7 +4,7 @@ use std::cell::RefCell;
 pub type Link = Option<Rc<RefCell<FNode>>>;
 
 pub struct FNode {
-    pub data: i32,
+    pub data: String,
     pub next: Link,
 }
 
@@ -16,25 +16,15 @@ pub struct ForwardList {
 
 impl ForwardList {
     pub fn new() -> ForwardList {
-        ForwardList {
-            head: None,
-            tail: None,
-            size: 0,
-        }
+        ForwardList { head: None, tail: None, size: 0 }
     }
 
     pub fn is_empty(&self) -> bool {
         self.head.is_none()
     }
 
-
-
-
-    pub fn push_head(&mut self, value: i32) {
-        let node = Rc::new(RefCell::new(FNode {
-            data: value,
-            next: self.head.clone(),
-        }));
+    pub fn push_head(&mut self, value: String) {
+        let node = Rc::new(RefCell::new(FNode { data: value, next: self.head.clone() }));
         if self.tail.is_none() {
             self.tail = Some(Rc::clone(&node));
         }
@@ -42,11 +32,8 @@ impl ForwardList {
         self.size += 1;
     }
 
-    pub fn push_tail(&mut self, value: i32) {
-        let node = Rc::new(RefCell::new(FNode {
-            data: value,
-            next: None,
-        }));
+    pub fn push_tail(&mut self, value: String) {
+        let node = Rc::new(RefCell::new(FNode { data: value, next: None }));
         match &self.tail {
             None => {
                 self.head = Some(Rc::clone(&node));
@@ -60,8 +47,7 @@ impl ForwardList {
         self.size += 1;
     }
 
-    pub fn push_before(&mut self, target: i32, value: i32) {
-        // если голова — это target
+    pub fn push_before(&mut self, target: String, value: String) {
         if let Some(head) = self.head.clone() {
             if head.borrow().data == target {
                 self.push_head(value);
@@ -73,7 +59,6 @@ impl ForwardList {
             let next = node.borrow().next.clone();
             if let Some(n) = next {
                 if n.borrow().data == target {
-                    // вставляем после node
                     let new_node = Rc::new(RefCell::new(FNode {
                         data: value,
                         next: Some(Rc::clone(&n)),
@@ -88,7 +73,7 @@ impl ForwardList {
         println!("Target not found");
     }
 
-    pub fn push_after(&mut self, target: i32, value: i32) {
+    pub fn push_after(&mut self, target: String, value: String) {
         let mut cur = self.head.clone();
         while let Some(node) = cur {
             if node.borrow().data == target {
@@ -110,15 +95,15 @@ impl ForwardList {
         println!("Target not found");
     }
 
-    pub fn get_head(&self) -> Option<i32> {
-        self.head.as_ref().map(|node| node.borrow().data)
+    pub fn get_head(&self) -> Option<String> {
+        self.head.as_ref().map(|node| node.borrow().data.clone())
     }
 
-    pub fn get_tail(&self) -> Option<i32> {
-        self.tail.as_ref().map(|node| node.borrow().data)
+    pub fn get_tail(&self) -> Option<String> {
+        self.tail.as_ref().map(|node| node.borrow().data.clone())
     }
 
-    pub fn get_at(&self, index: usize) -> Option<i32> {
+    pub fn get_at(&self, index: usize) -> Option<String> {
         if index >= self.size {
             return None;
         }
@@ -130,14 +115,14 @@ impl ForwardList {
                 return None;
             }
         }
-        cur.map(|node| node.borrow().data)
+        cur.map(|node| node.borrow().data.clone())
     }
 
-    pub fn del_head(&mut self) -> Option<i32> {
+    pub fn del_head(&mut self) -> Option<String> {
         match self.head.take() {
             None => None,
             Some(head) => {
-                let value = head.borrow().data;
+                let value = head.borrow().data.clone();
                 let next = head.borrow().next.clone();
                 self.head = next;
                 if self.head.is_none() {
@@ -149,7 +134,7 @@ impl ForwardList {
         }
     }
 
-    pub fn del_tail(&mut self) -> Option<i32> {
+    pub fn del_tail(&mut self) -> Option<String> {
         if self.is_empty() {
             return None;
         }
@@ -164,8 +149,7 @@ impl ForwardList {
             if let Some(n) = next {
                 if let Some(tail) = &self.tail {
                     if Rc::ptr_eq(&n, tail) {
-                        // node — предпоследний
-                        let value = n.borrow().data;
+                        let value = n.borrow().data.clone();
                         node.borrow_mut().next = None;
                         self.tail = Some(Rc::clone(&node));
                         self.size -= 1;
@@ -180,8 +164,7 @@ impl ForwardList {
         None
     }
 
-    pub fn del_value(&mut self, value: i32) -> bool {
-        // если голова
+    pub fn del_value(&mut self, value: String) -> bool {
         if let Some(head) = self.head.clone() {
             if head.borrow().data == value {
                 self.del_head();
@@ -195,7 +178,6 @@ impl ForwardList {
                 if n.borrow().data == value {
                     let after = n.borrow().next.clone();
                     node.borrow_mut().next = after;
-                    // если удалили хвост — обновляем tail
                     if let Some(tail) = &self.tail {
                         if Rc::ptr_eq(tail, &n) {
                             self.tail = Some(Rc::clone(&node));
@@ -212,8 +194,7 @@ impl ForwardList {
         false
     }
 
-
-    pub fn search(&self, value: i32) -> bool {
+    pub fn search(&self, value: String) -> bool {
         let mut cur = self.head.clone();
         while let Some(node) = cur {
             if node.borrow().data == value {
@@ -223,7 +204,6 @@ impl ForwardList {
         }
         false
     }
-
 
     pub fn print(&self) {
         if self.is_empty() {

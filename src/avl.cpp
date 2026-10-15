@@ -1,4 +1,5 @@
 #include <iostream>
+#include <queue>
 #include "avl.h"
 
 using namespace std;
@@ -106,15 +107,19 @@ static TNode* findMin(TNode* node){
     return node;
 }
 
-static TNode* deleteNode(TNode* node, int value){
+static TNode* deleteNode(TNode* node, int value, int& out, bool& deleted){
     if (node == nullptr){return nullptr;}
     if (value < node->data){
-        node->left = deleteNode(node->left, value);
+        node->left = deleteNode(node->left, value, out, deleted);
     }else if (value > node->data){
-        node->right = deleteNode(node->right, value);
+        node->right = deleteNode(node->right, value, out, deleted);
     }else{
+        if (!deleted) {
+            out = node->data;
+            deleted = true;
+        }
         if (node->left == nullptr || node->right == nullptr){
-            TNode* child = (node->left != nullptr) ? node-> left : node->right;
+            TNode* child = (node->left != nullptr) ? node->left : node->right;
             if (child == nullptr){
                 delete node;
                 return nullptr;
@@ -125,17 +130,17 @@ static TNode* deleteNode(TNode* node, int value){
         }else{
             TNode* successor = findMin(node->right);
             node->data = successor->data;
-            node->right = deleteNode(node->right, successor->data);
+            node->right = deleteNode(node->right, successor->data, out, deleted);
         }
     }
     return balance(node);
 }
 
-bool avlDel(AVLTree* tree, int value){
-    if (!avlSearch(tree, value)){return false;}
-    tree->root = deleteNode(tree->root, value);
-    tree->size--;
-    return true;
+bool avlDel(AVLTree* tree, int value, int& out){
+    bool deleted = false;
+    tree->root = deleteNode(tree->root, value, out, deleted);
+    if (deleted) tree->size--;
+    return deleted;
 }
 
 static void inorder(TNode* node){
@@ -157,6 +162,31 @@ static void postorder(TNode* node){
     postorder(node->left);
     postorder(node->right);
     cout << node->data << endl;
+}
+
+static void printBFS(TNode* root) {
+    if (!root) return;
+
+    queue<TNode*> q;
+    q.push(root);
+
+    while (!q.empty()) {
+        TNode* cur = q.front();
+        q.pop();
+        cout << "  " << cur->data << endl;
+
+        if (cur->left)  q.push(cur->left);
+        if (cur->right) q.push(cur->right);
+    }
+}
+
+void avlPrintBFS(AVLTree* t) {
+    if (!t->root) {
+        cout << "TREE: empty" << endl;
+        return;
+    }
+    cout << "TREE (bfs):" << endl;
+    printBFS(t->root);
 }
 
 void avlPrintInorder(AVLTree* tree) {

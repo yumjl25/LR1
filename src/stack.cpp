@@ -12,7 +12,7 @@ void stackFree(Stack* s){
     while(cur != nullptr){
         SNode* next = cur->next;
         delete cur;
-        cur = next; 
+        cur = next;
     }
     s->head = nullptr;
 }
@@ -21,29 +21,30 @@ bool stackIsEmpty(Stack* s){
     return s->head == nullptr;
 }
 
-void stackPush(Stack* s, int value){
+void stackPush(Stack* s, const std::string& value){
     SNode* new_node = new SNode{value, s->head};
     s->head = new_node;
 }
 
-int stackPop(Stack* s){
+bool stackPop(Stack* s, std::string& out){
     if (stackIsEmpty(s)){
         cout << "Stack is empty" << endl;
-        return -1;
+        return false;
     }
     SNode* del_node = s->head;
-    int value = del_node->data;
+    out = del_node->data;
     s->head = del_node->next;
     delete del_node;
-    return value;
+    return true;
 }
 
-int stackGet(Stack* s){
+bool stackGet(Stack* s, std::string& out){
     if (stackIsEmpty(s)){
         cout << "Stack is empty" << endl;
-        return -1;
+        return false;
     }
-    return s->head->data;
+    out = s->head->data;
+    return true;
 }
 
 void stackPrint(Stack* s){

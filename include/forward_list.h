@@ -1,12 +1,13 @@
 #ifndef FORWARD_LIST_H
 #define FORWARD_LIST_H
+#include <string>
 
-struct FNode{
-    int data;
+struct FNode {
+    std::string data;
     FNode* next;
 };
 
-struct ForwardList{
+struct ForwardList {
     FNode* head;
     FNode* tail;
     int size;
@@ -14,26 +15,25 @@ struct ForwardList{
 
 void flistInit(ForwardList* list);
 void flistFree(ForwardList* list);
-
 bool flistIsEmpty(ForwardList* list);
-int  flistLen(ForwardList* list);
 
-void flistPushHead(ForwardList* list, int value);
-void flistPushTail(ForwardList* list, int value);
-void flistPushBefore(ForwardList* list, int target, int value);
-void flistPushAfter(ForwardList* list, int target, int value);
+void flistPushHead(ForwardList* list, const std::string& value);
+void flistPushTail(ForwardList* list, const std::string& value);
+void flistPushBefore(ForwardList* list, const std::string& target, const std::string& value);
+void flistPushAfter(ForwardList* list, const std::string& target, const std::string& value);
 
-int flistDelHead(ForwardList* list);
-int flistDelTail(ForwardList* list);
-int flistDelBefore(ForwardList* list, int target);
-int flistDelAfter(ForwardList* list, int target);
+bool flistDelHead(ForwardList* list, std::string& out);
+bool flistDelTail(ForwardList* list, std::string& out);
+bool flistDelBefore(ForwardList* list, const std::string& target, std::string& out);
+bool flistDelAfter(ForwardList* list, const std::string& target, std::string& out);
+bool flistDelValue(ForwardList* list, const std::string& value);
 
-bool flistDelValue(ForwardList* list, int value);
-bool flistSearch(ForwardList* list, int value);
+bool flistSearch(ForwardList* list, const std::string& value);
 
-int  flistGetHead(ForwardList* list);
-int  flistGetTail(ForwardList* list);
-int  flistGetAt(ForwardList* list, int index);
+bool flistGetHead(ForwardList* list, std::string& out);
+bool flistGetTail(ForwardList* list, std::string& out);
+bool flistGetAt(ForwardList* list, int index, std::string& out);
+
 void flistPrint(ForwardList* list);
 
 #endif

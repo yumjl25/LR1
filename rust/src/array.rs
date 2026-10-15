@@ -4,15 +4,15 @@ use std::ptr;
 const INIT_CAPACITY: usize = 4;
 
 pub struct Array {
-    pub data: *mut i32,
+    pub data: *mut String,
     pub size: usize,
     pub capacity: usize,
 }
 
 impl Array {
     pub fn new() -> Array {
-        let layout = Layout::array::<i32>(INIT_CAPACITY).unwrap();
-        let data = unsafe { alloc(layout) as *mut i32 };
+        let layout = Layout::array::<String>(INIT_CAPACITY).unwrap();
+        let data = unsafe { alloc(layout) as *mut String };
         Array {
             data,
             size: 0,
@@ -30,17 +30,17 @@ impl Array {
 
     fn resize(&mut self) {
         let new_capacity = self.capacity * 2;
-        let old_layout = Layout::array::<i32>(self.capacity).unwrap();
-        let new_layout = Layout::array::<i32>(new_capacity).unwrap();
+        let old_layout = Layout::array::<String>(self.capacity).unwrap();
+        let new_layout = Layout::array::<String>(new_capacity).unwrap();
 
         unsafe {
-            let new_data = realloc(self.data as *mut u8, old_layout, new_layout.size()) as *mut i32;
+            let new_data = realloc(self.data as *mut u8, old_layout, new_layout.size()) as *mut String;
             self.data = new_data;
             self.capacity = new_capacity;
         }
     }
 
-    pub fn push(&mut self, value: i32) {
+    pub fn push(&mut self, value: String) {
         if self.size == self.capacity {
             self.resize();
         }
@@ -50,7 +50,7 @@ impl Array {
         self.size += 1;
     }
 
-    pub fn push_at(&mut self, value: i32, index: usize) {
+    pub fn push_at(&mut self, value: String, index: usize) {
         if index > self.size {
             println!("Index out of range");
             return;
@@ -68,14 +68,14 @@ impl Array {
         self.size += 1;
     }
 
-    pub fn get(&self, index: usize) -> Option<i32> {
+    pub fn get(&self, index: usize) -> Option<String> {
         if index >= self.size {
             return None;
         }
         unsafe { Some(ptr::read(self.data.add(index))) }
     }
 
-    pub fn set(&mut self, index: usize, value: i32) {
+    pub fn set(&mut self, index: usize, value: String) {
         if index >= self.size {
             println!("Index out of range");
             return;
@@ -85,13 +85,12 @@ impl Array {
         }
     }
 
-    pub fn del(&mut self, index: usize) -> Option<i32> {
+    pub fn del(&mut self, index: usize) -> Option<String> {
         if index >= self.size {
             return None;
         }
         unsafe {
             let value = ptr::read(self.data.add(index));
-            // сдвигаем влево
             for i in index..self.size - 1 {
                 let v = ptr::read(self.data.add(i + 1));
                 ptr::write(self.data.add(i), v);
@@ -117,7 +116,7 @@ impl Array {
 impl Drop for Array {
     fn drop(&mut self) {
         unsafe {
-            let layout = Layout::array::<i32>(self.capacity).unwrap();
+            let layout = Layout::array::<String>(self.capacity).unwrap();
             dealloc(self.data as *mut u8, layout);
         }
     }

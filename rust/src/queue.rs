@@ -4,7 +4,7 @@ use std::cell::RefCell;
 pub type Link = Option<Rc<RefCell<QNode>>>;
 
 pub struct QNode {
-    pub data: i32,
+    pub data: String,
     pub next: Link,
 }
 
@@ -22,34 +22,27 @@ impl Queue {
         self.head.is_none()
     }
 
-    pub fn push(&mut self, value: i32) {
-        let node = Rc::new(RefCell::new(QNode {
-            data: value,
-            next: None,
-        }));
-
+    pub fn push(&mut self, value: String) {
+        let node = Rc::new(RefCell::new(QNode { data: value, next: None }));
         match &self.tail {
             None => {
                 self.head = Some(Rc::clone(&node));
                 self.tail = Some(Rc::clone(&node));
             }
             Some(tail) => {
-                // цепляем к хвосту
                 tail.borrow_mut().next = Some(Rc::clone(&node));
                 self.tail = Some(Rc::clone(&node));
             }
         }
     }
 
-    pub fn pop(&mut self) -> Option<i32> {
+    pub fn pop(&mut self) -> Option<String> {
         match self.head.take() {
             None => None,
             Some(head) => {
-                let value = head.borrow().data;
-                // head = head.next
+                let value = head.borrow().data.clone();
                 let next = head.borrow().next.clone();
                 self.head = next;
-                // если очередь опустела — tail тоже
                 if self.head.is_none() {
                     self.tail = None;
                 }
@@ -58,10 +51,10 @@ impl Queue {
         }
     }
 
-    pub fn get(&self) -> Option<i32> {
+    pub fn get(&self) -> Option<String> {
         match &self.head {
             None => None,
-            Some(head) => Some(head.borrow().data),
+            Some(head) => Some(head.borrow().data.clone()),
         }
     }
 

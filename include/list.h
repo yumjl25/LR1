@@ -1,8 +1,9 @@
 #ifndef LIST_H
 #define LIST_H
+#include <string>
 
 struct LNode {
-    int data;
+    std::string data;
     LNode* prev;
     LNode* next;
 };
@@ -15,26 +16,25 @@ struct List {
 
 void listInit(List* list);
 void listFree(List* list);
-
 bool listIsEmpty(List* list);
-int  listLen(List* list);
 
-void listPushHead(List* list, int value);
-void listPushTail(List* list, int value);
-void listPushBefore(List* list, int target, int value);
-void listPushAfter(List* list, int target, int value);
+void listPushHead(List* list, const std::string& value);
+void listPushTail(List* list, const std::string& value);
+void listPushBefore(List* list, const std::string& target, const std::string& value);
+void listPushAfter(List* list, const std::string& target, const std::string& value);
 
-int listDelHead(List* list);
-int listDelTail(List* list);
-int listDelBefore(List* list, int target);
-int listDelAfter(List* list, int target);
+bool listDelHead(List* list, std::string& out);
+bool listDelTail(List* list, std::string& out);
+bool listDelBefore(List* list, const std::string& target, std::string& out);
+bool listDelAfter(List* list, const std::string& target, std::string& out);
+bool listDelValue(List* list, const std::string& value);
 
-bool listDelValue(List* list, int value);
-bool listSearch(List* list, int value);
+bool listSearch(List* list, const std::string& value);
 
-int  listGetHead(List* list);
-int  listGetTail(List* list);
-int  listGetAt(List* list, int index);
+bool listGetHead(List* list, std::string& out);
+bool listGetTail(List* list, std::string& out);
+bool listGetAt(List* list, int index, std::string& out);
+
 void listPrint(List* list);
 
 #endif

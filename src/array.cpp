@@ -6,7 +6,7 @@ using namespace std;
 static const int ARRAY_INIT_CAPACITY = 4;
 
 void arrayInit(Array* a) {
-    a->data = new int[ARRAY_INIT_CAPACITY];
+    a->data = new std::string[ARRAY_INIT_CAPACITY];
     a->size = 0;
     a->capacity = ARRAY_INIT_CAPACITY;
 }
@@ -28,7 +28,7 @@ int arrayLen(Array* a) {
 
 static void arrayResize(Array* a) {
     int new_capacity = a->capacity * 2;
-    int* new_data = new int[new_capacity];
+    std::string* new_data = new std::string[new_capacity];
     for (int i = 0; i < a->size; i++) {
         new_data[i] = a->data[i];
     }
@@ -37,15 +37,15 @@ static void arrayResize(Array* a) {
     a->capacity = new_capacity;
 }
 
-void arrayPush(Array* a, int value) {
+void arrayPush(Array* a, const std::string& v) {
     if (a->size == a->capacity) {
         arrayResize(a);
     }
-    a->data[a->size] = value;
+    a->data[a->size] = v;
     a->size++;
 }
 
-void arrayPushAt(Array* a, int value, int index) {
+void arrayPushAt(Array* a, const std::string& v, int index) {
     if (index < 0 || index > a->size) {
         cout << "Index out of range" << endl;
         return;
@@ -56,37 +56,38 @@ void arrayPushAt(Array* a, int value, int index) {
     for (int i = a->size; i > index; i--) {
         a->data[i] = a->data[i - 1];
     }
-    a->data[index] = value;
+    a->data[index] = v;
     a->size++;
 }
 
-int arrayGet(Array* a, int index) {
+bool arrayGet(Array* a, int index, std::string& out) {
     if (index < 0 || index >= a->size) {
         cout << "Index out of range" << endl;
-        return -1;
+        return false;
     }
-    return a->data[index];
+    out = a->data[index];
+    return true;
 }
 
-void arraySet(Array* a, int index, int value) {
+void arraySet(Array* a, int index, const std::string& v) {
     if (index < 0 || index >= a->size) {
         cout << "Index out of range" << endl;
         return;
     }
-    a->data[index] = value;
+    a->data[index] = v;
 }
 
-int arrayDel(Array* a, int index) {
+bool arrayDel(Array* a, int index, std::string& out) {
     if (index < 0 || index >= a->size) {
         cout << "Index out of range" << endl;
-        return -1;
+        return false;
     }
-    int value = a->data[index];
+    out = a->data[index];
     for (int i = index; i < a->size - 1; i++) {
         a->data[i] = a->data[i + 1];
     }
     a->size--;
-    return value;
+    return true;
 }
 
 void arrayPrint(Array* a) {

@@ -213,41 +213,41 @@ void storageExecute(Storage* s, const char* query, bool quiet) {
 
     if (strcmp(cmd, "SPUSH") == 0 && n >= 3) {
         Stack* st = storageGetStack(s, name);
-        int v = atoi(tokens[2]);
+        std::string v = tokens[2];
         stackPush(st, v);
         if (!quiet) cout << v << endl;
     }
     else if (strcmp(cmd, "SPOP") == 0) {
         Stack* st = storageGetStack(s, name);
-        int v = stackPop(st);
-        if (v != -1 && !quiet) cout << v << endl;
+        std::string v;
+        if (stackPop(st, v) && !quiet) cout << v << endl;
     }
     else if (strcmp(cmd, "SGET") == 0) {
         Stack* st = storageGetStack(s, name);
-        int v = stackGet(st);
-        if (v != -1 && !quiet) cout << v << endl;
+        std::string v;
+        if (stackGet(st, v) && !quiet) cout << v << endl;
     }
 
     else if (strcmp(cmd, "QPUSH") == 0 && n >= 3) {
         Queue* q = storageGetQueue(s, name);
-        int v = atoi(tokens[2]);
+        std::string v = tokens[2];
         queuePush(q, v);
         if (!quiet) cout << v << endl;
     }
     else if (strcmp(cmd, "QPOP") == 0) {
         Queue* q = storageGetQueue(s, name);
-        int v = queuePop(q);
-        if (v != -1 && !quiet) cout << v << endl;
+        std::string v;
+        if (queuePop(q, v) && !quiet) cout << v << endl;
     }
     else if (strcmp(cmd, "QGET") == 0) {
         Queue* q = storageGetQueue(s, name);
-        int v = queueGet(q);
-        if (v != -1 && !quiet) cout << v << endl;
+        std::string v;
+        if (queueGet(q, v) && !quiet) cout << v << endl;
     }
 
     else if (strcmp(cmd, "MPUSH") == 0 && n >= 3) {
         Array* a = storageGetArray(s, name);
-        int v = atoi(tokens[2]);
+        std::string v = tokens[2];
         if (n >= 4) {
             int idx = atoi(tokens[3]);
             arrayPushAt(a, v, idx);
@@ -259,19 +259,19 @@ void storageExecute(Storage* s, const char* query, bool quiet) {
     else if (strcmp(cmd, "MDEL") == 0 && n >= 3) {
         Array* a = storageGetArray(s, name);
         int idx = atoi(tokens[2]);
-        int v = arrayDel(a, idx);
-        if (v != -1 && !quiet) cout << v << endl;
+        std::string v;
+        if (arrayDel(a, idx, v) && !quiet) cout << v << endl;
     }
     else if (strcmp(cmd, "MGET") == 0 && n >= 3) {
         Array* a = storageGetArray(s, name);
         int idx = atoi(tokens[2]);
-        int v = arrayGet(a, idx);
-        if (v != -1 && !quiet) cout << v << endl;
+        std::string v;
+        if (arrayGet(a, idx, v) && !quiet) cout << v << endl;
     }
     else if (strcmp(cmd, "MSET") == 0 && n >= 4) {
         Array* a = storageGetArray(s, name);
         int idx = atoi(tokens[2]);
-        int v = atoi(tokens[3]);
+        std::string v = tokens[3];
         arraySet(a, idx, v);
         if (!quiet) cout << v << endl;
     }
@@ -289,8 +289,9 @@ void storageExecute(Storage* s, const char* query, bool quiet) {
     else if (strcmp(cmd, "TDEL") == 0 && n >= 3) {
         AVLTree* t = storageGetTree(s, name);
         int v = atoi(tokens[2]);
-        bool ok = avlDel(t, v);
-        if (!quiet) cout << (ok ? "TRUE" : "FALSE") << endl;
+        int deleted_value = 0;
+        bool ok = avlDel(t, v, deleted_value);
+        if (ok && !quiet) cout << deleted_value << endl;
     }
     else if (strcmp(cmd, "TSEARCH") == 0 && n >= 3) {
         AVLTree* t = storageGetTree(s, name);
@@ -300,120 +301,100 @@ void storageExecute(Storage* s, const char* query, bool quiet) {
     }
     else if (strcmp(cmd, "TGET") == 0) {
         AVLTree* t = storageGetTree(s, name);
-        if (!quiet) avlPrint(t);
+        const char* mode = (n >= 3) ? tokens[2] : "in";
+        if (!quiet) {
+            if      (strcmp(mode, "in")   == 0) avlPrint(t);
+            else if (strcmp(mode, "pre")  == 0) avlPrintPreorder(t);
+            else if (strcmp(mode, "post") == 0) avlPrintPostorder(t);
+            else if (strcmp(mode, "bfs")  == 0) avlPrintBFS(t);
+            else cout << "Unknown traversal: " << mode << endl;
+        }
     }
-
     else if (strcmp(cmd, "FPUSH") == 0 && n >= 3) {
         ForwardList* fl = storageGetFList(s, name);
-        int v = atoi(tokens[2]);
+        std::string v = tokens[2];
         if (n == 3) { flistPushTail(fl, v); }
         else if (strcmp(tokens[3], "head") == 0) { flistPushHead(fl, v); }
         else if (strcmp(tokens[3], "tail") == 0) { flistPushTail(fl, v); }
-        else if (strcmp(tokens[3], "before") == 0 && n >= 5) { flistPushBefore(fl, atoi(tokens[4]), v); }
-        else if (strcmp(tokens[3], "after") == 0 && n >= 5) { flistPushAfter(fl, atoi(tokens[4]), v); }
+        else if (strcmp(tokens[3], "before") == 0 && n >= 5) { flistPushBefore(fl, tokens[4], v); }
+        else if (strcmp(tokens[3], "after") == 0 && n >= 5) { flistPushAfter(fl, tokens[4], v); }
         if (!quiet) cout << v << endl;
     }
-
     else if (strcmp(cmd, "FGET") == 0 && n >= 3) {
         ForwardList* fl = storageGetFList(s, name);
-        int result = -1;
-        
-        if (strcmp(tokens[2], "head") == 0) {
-            result = flistGetHead(fl);
-        }
-        else if (strcmp(tokens[2], "tail") == 0) {
-            result = flistGetTail(fl);
-        }
-        else {
-            int idx = atoi(tokens[2]);
-            result = flistGetAt(fl, idx);
-        }
-        
-        if (result != -1 && !quiet) cout << result << endl;
+        std::string out;
+        bool ok = false;
+        if (strcmp(tokens[2], "head") == 0) ok = flistGetHead(fl, out);
+        else if (strcmp(tokens[2], "tail") == 0) ok = flistGetTail(fl, out);
+        else ok = flistGetAt(fl, atoi(tokens[2]), out);
+        if (ok && !quiet) cout << out << endl;
     }
-
     else if (strcmp(cmd, "FDEL") == 0 && n >= 3) {
         ForwardList* fl = storageGetFList(s, name);
-
+        std::string out;
         if (strcmp(tokens[2], "head") == 0) {
-            int v = flistDelHead(fl);
-            if (v != -1 && !quiet) cout << v << endl;
+            if (flistDelHead(fl, out) && !quiet) cout << out << endl;
         }
         else if (strcmp(tokens[2], "tail") == 0) {
-            int v = flistDelTail(fl);
-            if (v != -1 && !quiet) cout << v << endl;
+            if (flistDelTail(fl, out) && !quiet) cout << out << endl;
         }
         else if (strcmp(tokens[2], "before") == 0 && n >= 4) {
-            int v = flistDelBefore(fl, atoi(tokens[3]));
-            if (v != -1 && !quiet) cout << v << endl;
+            if (flistDelBefore(fl, tokens[3], out) && !quiet) cout << out << endl;
         }
         else if (strcmp(tokens[2], "after") == 0 && n >= 4) {
-            int v = flistDelAfter(fl, atoi(tokens[3]));
-            if (v != -1 && !quiet) cout << v << endl;
+            if (flistDelAfter(fl, tokens[3], out) && !quiet) cout << out << endl;
         }
         else {
-            flistDelValue(fl, atoi(tokens[2]));
+            flistDelValue(fl, tokens[2]);
         }
     }
     else if (strcmp(cmd, "FSEARCH") == 0 && n >= 3) {
         ForwardList* fl = storageGetFList(s, name);
-        bool ok = flistSearch(fl, atoi(tokens[2]));
+        bool ok = flistSearch(fl, tokens[2]);
         if (!quiet) cout << (ok ? "TRUE" : "FALSE") << endl;
     }
 
     else if (strcmp(cmd, "LPUSH") == 0 && n >= 3) {
         List* l = storageGetList(s, name);
-        int v = atoi(tokens[2]);
+        std::string v = tokens[2];
         if (n == 3) { listPushTail(l, v); }
         else if (strcmp(tokens[3], "head") == 0) { listPushHead(l, v); }
         else if (strcmp(tokens[3], "tail") == 0) { listPushTail(l, v); }
-        else if (strcmp(tokens[3], "before") == 0 && n >= 5) { listPushBefore(l, atoi(tokens[4]), v); }
-        else if (strcmp(tokens[3], "after") == 0 && n >= 5) { listPushAfter(l, atoi(tokens[4]), v); }
+        else if (strcmp(tokens[3], "before") == 0 && n >= 5) { listPushBefore(l, tokens[4], v); }
+        else if (strcmp(tokens[3], "after") == 0 && n >= 5) { listPushAfter(l, tokens[4], v); }
         if (!quiet) cout << v << endl;
     }
-        else if (strcmp(cmd, "LGET") == 0 && n >= 3) {
+    else if (strcmp(cmd, "LGET") == 0 && n >= 3) {
         List* l = storageGetList(s, name);
-        int result = -1;
-        
-        if (strcmp(tokens[2], "head") == 0) {
-            result = listGetHead(l);
-        }
-        else if (strcmp(tokens[2], "tail") == 0) {
-            result = listGetTail(l);
-        }
-        else {
-            int idx = atoi(tokens[2]);
-            result = listGetAt(l, idx);
-        }
-        
-        if (result != -1 && !quiet) cout << result << endl;
+        std::string out;
+        bool ok = false;
+        if (strcmp(tokens[2], "head") == 0) ok = listGetHead(l, out);
+        else if (strcmp(tokens[2], "tail") == 0) ok = listGetTail(l, out);
+        else ok = listGetAt(l, atoi(tokens[2]), out);
+        if (ok && !quiet) cout << out << endl;
     }
-
     else if (strcmp(cmd, "LDEL") == 0 && n >= 2) {
         List* l = storageGetList(s, name);
+        std::string out;
         if (strcmp(tokens[2], "head") == 0) {
-            int v = listDelHead(l);
-            if (v != -1 && !quiet) cout << v << endl;
+            if (listDelHead(l, out) && !quiet) cout << out << endl;
         }
         else if (strcmp(tokens[2], "tail") == 0) {
-            int v = listDelTail(l);
-            if (v != -1 && !quiet) cout << v << endl;
+            if (listDelTail(l, out) && !quiet) cout << out << endl;
         }
         else if (strcmp(tokens[2], "before") == 0 && n >= 4) {
-            int v = listDelBefore(l, atoi(tokens[3]));
-            if (v != -1 && !quiet) cout << v << endl;
+            if (listDelBefore(l, tokens[3], out) && !quiet) cout << out << endl;
         }
         else if (strcmp(tokens[2], "after") == 0 && n >= 4) {
-            int v = listDelAfter(l, atoi(tokens[3]));
-            if (v != -1 && !quiet) cout << v << endl;
+            if (listDelAfter(l, tokens[3], out) && !quiet) cout << out << endl;
         }
         else {
-            listDelValue(l, atoi(tokens[2]));
+            listDelValue(l, tokens[2]);
         }
     }
     else if (strcmp(cmd, "LSEARCH") == 0 && n >= 3) {
         List* l = storageGetList(s, name);
-        bool ok = listSearch(l, atoi(tokens[2]));
+        bool ok = listSearch(l, tokens[2]);
         if (!quiet) cout << (ok ? "TRUE" : "FALSE") << endl;
     }
 
@@ -439,7 +420,7 @@ void storageSave(Storage* s, const char* filename) {
 
     StackEntry* st = s->stacks;
     while (st) {
-        int buf[1000];
+        std::string buf[1000];
         int cnt = 0;
         SNode* cur = st->stack->head;
         while (cur) { buf[cnt++] = cur->data; cur = cur->next; }

@@ -253,9 +253,9 @@ impl Storage {
         let name = tokens[1];
 
         if cmd == "SPUSH" && n >= 3 {
-            let v: i32 = tokens[2].parse().unwrap_or(0);
+            let v = tokens[2].to_string();
             let st = find_or_create_stack(&mut self.stacks, name);
-            st.push(v);
+            st.push(v.clone());
             if !quiet { println!("{}", v); }
         }
         else if cmd == "SPOP" {
@@ -272,9 +272,9 @@ impl Storage {
         }
 
         else if cmd == "QPUSH" && n >= 3 {
-            let v: i32 = tokens[2].parse().unwrap_or(0);
+            let v = tokens[2].to_string();
             let q = find_or_create_queue(&mut self.queues, name);
-            q.push(v);
+            q.push(v.clone());
             if !quiet { println!("{}", v); }
         }
         else if cmd == "QPOP" {
@@ -291,13 +291,13 @@ impl Storage {
         }
 
         else if cmd == "MPUSH" && n >= 3 {
-            let v: i32 = tokens[2].parse().unwrap_or(0);
+            let v = tokens[2].to_string();
             let a = find_or_create_array(&mut self.arrays, name);
             if n >= 4 {
                 let idx: usize = tokens[3].parse().unwrap_or(0);
-                a.push_at(v, idx);
+                a.push_at(v.clone(), idx);
             } else {
-                a.push(v);
+                a.push(v.clone());
             }
             if !quiet { println!("{}", v); }
         }
@@ -317,9 +317,9 @@ impl Storage {
         }
         else if cmd == "MSET" && n >= 4 {
             let idx: usize = tokens[2].parse().unwrap_or(0);
-            let v: i32 = tokens[3].parse().unwrap_or(0);
+            let v = tokens[3].to_string();
             let a = find_or_create_array(&mut self.arrays, name);
-            a.set(idx, v);
+            a.set(idx, v.clone());
             if !quiet { println!("{}", v); }
         }
         else if cmd == "MLEN" {
@@ -328,115 +328,87 @@ impl Storage {
         }
 
         else if cmd == "FPUSH" && n >= 3 {
-            let v: i32 = tokens[2].parse().unwrap_or(0);
+            let v = tokens[2].to_string();
             let fl = find_or_create_flist(&mut self.flists, name);
             if n == 3 {
-                fl.push_tail(v);
+                fl.push_tail(v.clone());
             } else if tokens[3] == "head" {
-                fl.push_head(v);
+                fl.push_head(v.clone());
             } else if tokens[3] == "tail" {
-                fl.push_tail(v);
+                fl.push_tail(v.clone());
             } else if tokens[3] == "before" && n >= 5 {
-                let target: i32 = tokens[4].parse().unwrap_or(0);
-                fl.push_before(target, v);
+                fl.push_before(tokens[4].to_string(), v.clone());
             } else if tokens[3] == "after" && n >= 5 {
-                let target: i32 = tokens[4].parse().unwrap_or(0);
-                fl.push_after(target, v);
+                fl.push_after(tokens[4].to_string(), v.clone());
             }
             if !quiet { println!("{}", v); }
         }
         else if cmd == "FGET" && n >= 3 {
             let fl = find_or_create_flist(&mut self.flists, name);
             if tokens[2] == "head" {
-                if let Some(v) = fl.get_head() {
-                    if !quiet { println!("{}", v); }
-                }
+                if let Some(v) = fl.get_head() { if !quiet { println!("{}", v); } }
             } else if tokens[2] == "tail" {
-                if let Some(v) = fl.get_tail() {
-                    if !quiet { println!("{}", v); }
-                }
+                if let Some(v) = fl.get_tail() { if !quiet { println!("{}", v); } }
             } else {
                 let idx: usize = tokens[2].parse().unwrap_or(0);
-                if let Some(v) = fl.get_at(idx) {
-                    if !quiet { println!("{}", v); }
-                }
+                if let Some(v) = fl.get_at(idx) { if !quiet { println!("{}", v); } }
             }
         }
         else if cmd == "FDEL" && n >= 3 {
             let fl = find_or_create_flist(&mut self.flists, name);
             if tokens[2] == "head" {
-                if let Some(v) = fl.del_head() {
-                    if !quiet { println!("{}", v); }
-                }
+                if let Some(v) = fl.del_head() { if !quiet { println!("{}", v); } }
             } else if tokens[2] == "tail" {
-                if let Some(v) = fl.del_tail() {
-                    if !quiet { println!("{}", v); }
-                }
+                if let Some(v) = fl.del_tail() { if !quiet { println!("{}", v); } }
             } else {
-                let target: i32 = tokens[2].parse().unwrap_or(0);
-                fl.del_value(target);
+                fl.del_value(tokens[2].to_string());
             }
         }
         else if cmd == "FSEARCH" && n >= 3 {
-            let target: i32 = tokens[2].parse().unwrap_or(0);
             let fl = find_or_create_flist(&mut self.flists, name);
-            if !quiet { println!("{}", if fl.search(target) { "TRUE" } else { "FALSE" }); }
+            if !quiet { println!("{}", if fl.search(tokens[2].to_string()) { "TRUE" } else { "FALSE" }); }
         }
 
         else if cmd == "LPUSH" && n >= 3 {
-            let v: i32 = tokens[2].parse().unwrap_or(0);
+            let v = tokens[2].to_string();
             let l = find_or_create_list(&mut self.lists, name);
             if n == 3 {
-                l.push_tail(v);
+                l.push_tail(v.clone());
             } else if tokens[3] == "head" {
-                l.push_head(v);
+                l.push_head(v.clone());
             } else if tokens[3] == "tail" {
-                l.push_tail(v);
+                l.push_tail(v.clone());
             } else if tokens[3] == "before" && n >= 5 {
-                let target: i32 = tokens[4].parse().unwrap_or(0);
-                l.push_before(target, v);
+                l.push_before(tokens[4].to_string(), v.clone());
             } else if tokens[3] == "after" && n >= 5 {
-                let target: i32 = tokens[4].parse().unwrap_or(0);
-                l.push_after(target, v);
+                l.push_after(tokens[4].to_string(), v.clone());
             }
             if !quiet { println!("{}", v); }
         }
         else if cmd == "LGET" && n >= 3 {
             let l = find_or_create_list(&mut self.lists, name);
             if tokens[2] == "head" {
-                if let Some(v) = l.get_head() {
-                    if !quiet { println!("{}", v); }
-                }
+                if let Some(v) = l.get_head() { if !quiet { println!("{}", v); } }
             } else if tokens[2] == "tail" {
-                if let Some(v) = l.get_tail() {
-                    if !quiet { println!("{}", v); }
-                }
+                if let Some(v) = l.get_tail() { if !quiet { println!("{}", v); } }
             } else {
                 let idx: usize = tokens[2].parse().unwrap_or(0);
-                if let Some(v) = l.get_at(idx) {
-                    if !quiet { println!("{}", v); }
-                }
+                if let Some(v) = l.get_at(idx) { if !quiet { println!("{}", v); } }
             }
         }
         else if cmd == "LDEL" && n >= 3 {
             let l = find_or_create_list(&mut self.lists, name);
             if tokens[2] == "head" {
-                if let Some(v) = l.del_head() {
-                    if !quiet { println!("{}", v); }
-                }
+                if let Some(v) = l.del_head() { if !quiet { println!("{}", v); } }
             } else if tokens[2] == "tail" {
-                if let Some(v) = l.del_tail() {
-                    if !quiet { println!("{}", v); }
-                }
+                if let Some(v) = l.del_tail() { if !quiet { println!("{}", v); } }
             } else {
-                let target: i32 = tokens[2].parse().unwrap_or(0);
-                l.del_value(target);
+                l.del_value(tokens[2].to_string());
             }
         }
         else if cmd == "LSEARCH" && n >= 3 {
-            let target: i32 = tokens[2].parse().unwrap_or(0);
             let l = find_or_create_list(&mut self.lists, name);
-            if !quiet { println!("{}", if l.search(target) { "TRUE" } else { "FALSE" }); }
+            if !quiet { println!("{}", if l.search(tokens[2].to_string()) { "TRUE" } else { "FALSE" }); }
         }
 
         else {
@@ -462,16 +434,13 @@ impl Storage {
 
         let mut cur = &self.stacks;
         while let Some(e) = cur {
-            let mut buf: [i32; 1000] = [0; 1000];
-            let mut cnt = 0;
+            let mut buf: Vec<String> = Vec::new();
             let mut node = e.stack.head.as_ref();
             while let Some(n) = node {
-                if cnt >= 1000 { break; }
-                buf[cnt] = n.data;
-                cnt += 1;
+                buf.push(n.data.clone());
                 node = n.next.as_ref();
             }
-            for i in (0..cnt).rev() {
+            for i in (0..buf.len()).rev() {
                 out.push_str(&format!("SPUSH {} {}\n", e.name, buf[i]));
             }
             cur = &e.next;
@@ -490,8 +459,9 @@ impl Storage {
         let mut cur = &self.arrays;
         while let Some(e) = cur {
             for i in 0..e.array.size {
-                let v = e.array.get(i).unwrap_or(0);
-                out.push_str(&format!("MPUSH {} {}\n", e.name, v));
+                if let Some(v) = e.array.get(i) {
+                    out.push_str(&format!("MPUSH {} {}\n", e.name, v));
+                }
             }
             cur = &e.next;
         }

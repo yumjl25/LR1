@@ -1,24 +1,23 @@
 #ifndef STACK_H
 #define STACK_H
 
-struct SNode{
-    int data;
+#include <string>
+
+struct SNode {
+    std::string data;
     SNode* next;
 };
 
-struct Stack{
+struct Stack {
     SNode* head;
 };
 
 void stackInit(Stack* s);
 void stackFree(Stack* s);
+bool stackIsEmpty(Stack* s);
 
-bool stackISEmpty(Stack* s);
-
-void stackPush(Stack* s, int value);
-int stackPop(Stack* s);
-int stackGet(Stack* s);
-
+void stackPush(Stack* s, const std::string& value);
+bool stackPop(Stack* s, std::string& out);
+bool stackGet(Stack* s, std::string& out);
 void stackPrint(Stack* s);
-
 #endif

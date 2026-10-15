@@ -25,8 +25,7 @@ bool flistIsEmpty(ForwardList* list){
     return list->head == nullptr;
 }
 
-
-void flistPushHead(ForwardList* list, int value){
+void flistPushHead(ForwardList* list, const std::string& value){
     FNode* new_node = new FNode{value, list->head};
     list->head = new_node;
     if (list->tail == nullptr){
@@ -35,7 +34,7 @@ void flistPushHead(ForwardList* list, int value){
     list->size++;
 }
 
-void flistPushTail(ForwardList* list, int value){
+void flistPushTail(ForwardList* list, const std::string& value){
     FNode* new_node = new FNode{value, nullptr};
     if (list->tail == nullptr){
         list->head = new_node;
@@ -47,7 +46,7 @@ void flistPushTail(ForwardList* list, int value){
     list->size++;
 }
 
-void flistPushBefore(ForwardList* list, int target, int value){
+void flistPushBefore(ForwardList* list, const std::string& target, const std::string& value){
     if (list->head == nullptr){return;}
 
     if (list->head->data == target){
@@ -69,7 +68,7 @@ void flistPushBefore(ForwardList* list, int target, int value){
     list->size++;
 }
 
-void flistPushAfter(ForwardList* list, int target, int value){
+void flistPushAfter(ForwardList* list, const std::string& target, const std::string& value){
     FNode* cur = list->head;
     while (cur != nullptr && cur->data != target){
         cur = cur->next;
@@ -86,46 +85,46 @@ void flistPushAfter(ForwardList* list, int target, int value){
     list->size++;
 }
 
-int flistDelHead(ForwardList* list){
+bool flistDelHead(ForwardList* list, std::string& out){
     if (flistIsEmpty(list)){
         cout << "Forward list is empty" << endl;
-        return -1;
+        return false;
     }
     FNode* del_node = list->head;
-    int value = del_node->data;
+    out = del_node->data;
     list->head = del_node->next;
     if (list->head == nullptr){
         list->tail = nullptr;
     }
     delete del_node;
     list->size--;
-    return value;
+    return true;
 }
 
-int flistDelTail(ForwardList* list){
+bool flistDelTail(ForwardList* list, std::string& out){
     if (flistIsEmpty(list)){
         cout << "Forward list is empty" << endl;
-        return -1;
+        return false;
     }
     if (list->head == list->tail){
-        return flistDelHead(list);
+        return flistDelHead(list, out);
     }
     FNode* cur = list->head;
     while (cur->next != list->tail){
         cur = cur->next;
     }
-    int value = list->tail->data;
+    out = list->tail->data;
     delete list->tail;
     list->tail = cur;
     cur->next = nullptr;
     list->size--;
-    return value;
+    return true;
 }
 
-int flistDelBefore(ForwardList* list, int target){
+bool flistDelBefore(ForwardList* list, const std::string& target, std::string& out){
     if (flistIsEmpty(list) || list->head->data == target){
         cout << "Nothing to delete before" << endl;
-        return -1;
+        return false;
     }
     FNode* prev = nullptr;
     FNode* cur = list->head;
@@ -135,47 +134,48 @@ int flistDelBefore(ForwardList* list, int target){
     }
     if (cur == nullptr || prev == nullptr) {
         cout << "Target not found" << endl;
-        return -1;
+        return false;
     }
     if (prev == list->head) {
-        return flistDelHead(list);
+        return flistDelHead(list, out);
     }
     FNode* before_prev = list->head;
     while (before_prev->next != prev) {
         before_prev = before_prev->next;
     }
-    int value = prev->data;
+    out = prev->data;
     before_prev->next = cur;
     delete prev;
     list->size--;
-    return value;
+    return true;
 }
 
-int flistDelAfter(ForwardList* list, int target) {
+bool flistDelAfter(ForwardList* list, const std::string& target, std::string& out) {
     FNode* cur = list->head;
     while (cur != nullptr && cur->data != target) {
         cur = cur->next;
     }
     if (cur == nullptr || cur->next == nullptr) {
         cout << "Nothing to delete after" << endl;
-        return -1;
+        return false;
     }
     FNode* del_node = cur->next;
-    int value = del_node->data;
+    out = del_node->data;
     cur->next = del_node->next;
     if (del_node == list->tail) {
         list->tail = cur;
     }
     delete del_node;
     list->size--;
-    return value;
+    return true;
 }
 
-bool flistDelValue(ForwardList* list, int value) {
+bool flistDelValue(ForwardList* list, const std::string& value) {
     if (flistIsEmpty(list)) return false;
 
     if (list->head->data == value) {
-        flistDelHead(list);
+        std::string tmp;
+        flistDelHead(list, tmp);
         return true;
     }
 
@@ -195,7 +195,7 @@ bool flistDelValue(ForwardList* list, int value) {
     return true;
 }
 
-bool flistSearch(ForwardList* list, int value) {
+bool flistSearch(ForwardList* list, const std::string& value) {
     FNode* cur = list->head;
     while (cur != nullptr) {
         if (cur->data == value) return true;
@@ -204,32 +204,35 @@ bool flistSearch(ForwardList* list, int value) {
     return false;
 }
 
-int flistGetHead(ForwardList* list) {
+bool flistGetHead(ForwardList* list, std::string& out) {
     if (flistIsEmpty(list)) {
         cout << "List is empty" << endl;
-        return -1;
+        return false;
     }
-    return list->head->data;
+    out = list->head->data;
+    return true;
 }
 
-int flistGetTail(ForwardList* list) {
+bool flistGetTail(ForwardList* list, std::string& out) {
     if (flistIsEmpty(list)) {
         cout << "List is empty" << endl;
-        return -1;
+        return false;
     }
-    return list->tail->data;
+    out = list->tail->data;
+    return true;
 }
 
-int flistGetAt(ForwardList* list, int index) {
+bool flistGetAt(ForwardList* list, int index, std::string& out) {
     if (index < 0 || index >= list->size) {
         cout << "Index out of range" << endl;
-        return -1;
+        return false;
     }
     FNode* cur = list->head;
     for (int i = 0; i < index; i++) {
         cur = cur->next;
     }
-    return cur->data;
+    out = cur->data;
+    return true;
 }
 
 void flistPrint(ForwardList* list) {
